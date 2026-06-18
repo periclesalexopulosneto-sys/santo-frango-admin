@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Santo Frango — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --preto:#15110D;--sup:#1E1812;--sup2:#2A2117;--borda:#3A2D1D;
+  --dourado:#E8A33D;--dourado-claro:#F4C570;--brasa:#C8492A;
+  --creme:#F7EFE1;--creme-fraco:#BFB09A;--verde:#7A9A52;
+  --raio:12px;
+  --fc:'Work Sans',-apple-system,sans-serif;
+  --fm:'JetBrains Mono','Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--preto);color:var(--creme);font-family:var(--fc);-webkit-font-smoothing:antialiased;padding-bottom:80px;}
+
+header{background:var(--sup);border-bottom:1.5px solid var(--borda);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
+header h1{font-size:17px;font-weight:800;color:var(--dourado);}
+.btn-salvar{background:var(--dourado);color:var(--preto);border:none;border-radius:999px;padding:9px 20px;font-weight:800;font-size:13px;cursor:pointer;font-family:var(--fc);}
+
+.abas{display:flex;gap:0;background:var(--sup);border-bottom:1.5px solid var(--borda);overflow-x:auto;}
+.aba{padding:10px 14px;font-weight:700;font-size:13px;color:var(--creme-fraco);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--fc);}
+.aba.ativa{color:var(--dourado);border-bottom-color:var(--dourado);}
+
+.conteudo-aba{display:none;padding:14px;max-width:680px;margin:0 auto;}
+.conteudo-aba.ativo{display:block;}
+
+.secao-titulo{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--creme-fraco);margin:16px 0 10px;}
+
+/* CARDS EDITÁVEIS */
+.card-ed{background:var(--sup);border:1.5px solid var(--borda);border-radius:var(--raio);padding:13px;margin-bottom:10px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;}
+.campo-full{margin-bottom:8px;}
+label.mini{font-size:11px;font-weight:700;color:var(--creme-fraco);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+input[type=text],input[type=number]{
+  width:100%;background:var(--sup2);border:1.5px solid var(--borda);
+  border-radius:8px;padding:9px 12px;color:var(--creme);font-family:var(--fc);font-size:14px;
+}
+input::placeholder{color:#6E6253;}
+.card-ed-rodape{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+.toggle-wrap{display:flex;align-items:center;gap:8px;}
+.toggle-label{font-size:13px;color:var(--creme-fraco);}
+.switch{position:relative;width:40px;height:22px;flex:none;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{position:absolute;inset:0;background:#3A2D1D;border-radius:999px;cursor:pointer;transition:.2s;}
+.slider::before{content:"";position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:#6E6253;border-radius:50%;transition:.2s;}
+input:checked+.slider{background:var(--verde);}
+input:checked+.slider::before{transform:translateX(18px);background:#fff;}
+.btn-rem{background:none;border:1.5px solid rgba(200,73,42,.35);color:var(--brasa);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fc);}
+.btn-rem:hover{background:rgba(200,73,42,.1);}
+.btn-add{background:var(--sup2);border:1.5px dashed var(--borda);color:var(--creme-fraco);border-radius:var(--raio);padding:11px;width:100%;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--fc);margin-top:6px;}
+.btn-add:hover{border-color:var(--dourado);color:var(--dourado);}
+
+/* BAIRROS */
+.bairro-item{background:var(--sup);border:1.5px solid var(--borda);border-radius:var(--raio);padding:12px 14px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:10px;}
+.bairro-nome{font-size:14px;font-weight:600;}
+.bairro-preco-wrap{display:flex;align-items:center;gap:6px;}
+.bairro-preco-wrap span{font-size:12px;color:var(--creme-fraco);}
+.bairro-preco-wrap input{width:80px;padding:7px 10px;font-size:13px;}
+.bairro-preco-wrap input:disabled{opacity:0.4;}
+.gratis-btn{padding:7px 12px;border-radius:999px;border:1.5px solid var(--borda);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fc);background:var(--sup2);color:var(--creme-fraco);white-space:nowrap;}
+.gratis-btn.ativo{background:var(--verde);border-color:var(--verde);color:#fff;}
+.add-bairro-row{display:flex;gap:8px;margin-top:8px;}
+.add-bairro-row input{flex:1;}
+.add-bairro-row button{background:var(--dourado);border:none;border-radius:8px;color:var(--preto);padding:0 16px;font-weight:800;cursor:pointer;font-size:18px;flex:none;}
+
+/* CONFIG */
+.card-config{background:var(--sup);border:1.5px solid var(--borda);border-radius:var(--raio);padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.card-config label{flex:1;font-size:14px;font-weight:600;margin:0;}
+.card-config input{width:120px;margin:0;}
+.formas-lista{display:flex;flex-direction:column;gap:8px;}
+.forma-item{background:var(--sup);border:1.5px solid var(--borda);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;}
+.forma-item span{flex:1;font-size:14px;font-weight:600;}
+.btn-rem-forma{background:none;border:none;color:var(--brasa);font-size:20px;cursor:pointer;line-height:1;}
+.add-forma{display:flex;gap:8px;margin-top:8px;}
+.add-forma input{flex:1;}
+.add-forma button{background:var(--dourado);border:none;border-radius:8px;color:var(--preto);padding:0 16px;font-weight:800;cursor:pointer;font-size:18px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--verde);color:#fff;padding:12px 24px;border-radius:999px;font-weight:700;font-size:14px;z-index:200;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;}
+.toast.mostrar{opacity:1;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚙️ Admin — Santo Frango</h1>
+  <button class="btn-salvar" id="btnSalvar">💾 Salvar tudo</button>
+</header>
+
+<div class="abas">
+  <button class="aba ativa" data-aba="combos">Combos</button>
+  <button class="aba" data-aba="molhos">Molhos</button>
+  <button class="aba" data-aba="bebidas">Bebidas</button>
+  <button class="aba" data-aba="adicionais">Adicionais</button>
+  <button class="aba" data-aba="entrega">Entrega</button>
+  <button class="aba" data-aba="config">Config</button>
+</div>
+
+<div id="aba-combos" class="conteudo-aba ativo">
+  <div class="secao-titulo">Combos do cardápio</div>
+  <div id="listaCombos"></div>
+  <button class="btn-add" id="btnAddCombo">+ Adicionar combo</button>
+</div>
+
+<div id="aba-molhos" class="conteudo-aba">
+  <div class="secao-titulo">Molhos disponíveis</div>
+  <div id="listaMolhos"></div>
+  <button class="btn-add" id="btnAddMolho">+ Adicionar molho</button>
+</div>
+
+<div id="aba-bebidas" class="conteudo-aba">
+  <div class="secao-titulo">Bebidas disponíveis</div>
+  <div id="listaBebidas"></div>
+  <button class="btn-add" id="btnAddBebida">+ Adicionar bebida</button>
+</div>
+
+<div id="aba-adicionais" class="conteudo-aba">
+  <div class="secao-titulo">Adicionais (cliente escolhe a quantidade)</div>
+  <div id="listaAdicionais"></div>
+  <button class="btn-add" id="btnAddAdicional">+ Adicionar item</button>
+</div>
+
+<div id="aba-entrega" class="conteudo-aba">
+  <div class="secao-titulo">Bairros e taxas de entrega</div>
+  <p style="font-size:12.5px;color:var(--creme-fraco);margin-bottom:14px;line-height:1.5;">
+    Ative <b style="color:var(--verde);">Grátis</b> para mostrar o valor riscado com "GRÁTIS" ao cliente.<br>
+    Desative para cobrar o valor normalmente.
+  </p>
+  <div id="listaBairros"></div>
+  <div class="add-bairro-row">
+    <input type="text" id="novoBairroNome" placeholder="Nome do bairro">
+    <button id="btnAddBairro">+</button>
+  </div>
+</div>
+
+<div id="aba-config" class="conteudo-aba">
+  <div class="secao-titulo">Formas de pagamento</div>
+  <div class="formas-lista" id="listaFormas"></div>
+  <div class="add-forma">
+    <input type="text" id="novaForma" placeholder="Ex: Cartão no app">
+    <button id="btnAddForma">+</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ Salvo com sucesso!</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+
+/* ============================================================
+   COLE AS CREDENCIAIS DO FIREBASE AQUI
+   ============================================================ */
+var FB = {
+  apiKey: "AIzaSyChLCz_oV36K-hddzAzDTVYo7WXNKH1fw8",
+  authDomain: "santo-frango-b8deb.firebaseapp.com",
+  projectId: "santo-frango-b8deb",
+  storageBucket: "santo-frango-b8deb.firebasestorage.app",
+  messagingSenderId: "42747726573",
+  appId: "1:42747726573:web:4eee5e05d3095219f09ae4"
+};
+/* ============================================================ */
+
+firebase.initializeApp(FB);
+var db = firebase.firestore();
+
+/* ---------- Dados padrão ---------- */
+var dados = {
+  combos: [
+    {nome:"Combo Família", descricao:"500g de frango + batata frita + anéis de cebola", preco:87.90, precoOriginal:null, disponivel:true},
+    {nome:"Combo Amigos + Coca 2L", descricao:"500g de frango + 500g de batata + Coca-Cola 2L", preco:88.90, precoOriginal:90.00, disponivel:true},
+    {nome:"Combo Amigos", descricao:"500g de filé de frango + 500g de batata frita", preco:74.90, precoOriginal:89.90, disponivel:true},
+    {nome:"Combo Tank", descricao:"500g de frango + 200g de batata frita", preco:55.90, precoOriginal:null, disponivel:true},
+    {nome:"Combo X", descricao:"250g de frango + porção de batata", preco:39.90, precoOriginal:52.00, disponivel:true},
+    {nome:"Combo Individual 1", descricao:"200g de frango + porção individual de batata", preco:30.00, precoOriginal:null, disponivel:true},
+    {nome:"Combo Individual 2", descricao:"Frango + batata, porção individual", preco:28.00, precoOriginal:null, disponivel:true},
+    {nome:"Caixa 1,2kg + Tuchauá", descricao:"1,2kg de frango com batata + refrigerante Tuchauá", preco:90.84, precoOriginal:null, disponivel:true},
+    {nome:"1kg de Frango", descricao:"1kg de frango empanado", preco:80.00, precoOriginal:null, disponivel:true},
+    {nome:"500g + Coca 600ml", descricao:"500g de frango + Coca-Cola 600ml", preco:47.90, precoOriginal:null, disponivel:true},
+    {nome:"500g de Frango", descricao:"Meio quilo de frango empanado", preco:39.99, precoOriginal:50.00, disponivel:true},
+    {nome:"Anéis de Cebola", descricao:"300g de anéis de cebola empanados", preco:35.00, precoOriginal:null, disponivel:true},
+    {nome:"Batata Frita", descricao:"300g de batata frita", preco:25.00, precoOriginal:null, disponivel:true}
+  ],
+  molhos: [
+    {nome:"Barbecue", disponivel:true},{nome:"Mostarda e Mel", disponivel:true},
+    {nome:"Maionese da Casa", disponivel:true},{nome:"Ranch", disponivel:true},{nome:"Pimenta", disponivel:true}
+  ],
+  bebidas: [
+    {nome:"Sem bebida", preco:0, disponivel:true},
+    {nome:"Coca-Cola 600ml", preco:8.00, disponivel:true},{nome:"Coca-Cola 2L", preco:15.00, disponivel:true},
+    {nome:"Tuchauá 2L", preco:12.00, disponivel:true},{nome:"Água", preco:4.00, disponivel:true}
+  ],
+  adicionais: [
+    {nome:"Batata Frita Extra", descricao:"Porção extra de batata", preco:12.00, disponivel:true},
+    {nome:"Anéis de Cebola Extra", descricao:"Porção extra de anéis", preco:10.00, disponivel:true},
+    {nome:"Molho Extra", descricao:"Potinho de molho adicional", preco:3.00, disponivel:true},
+    {nome:"Frango Extra 200g", descricao:"200g de frango adicional", preco:18.00, disponivel:true}
+  ],
+  bairros: [
+    {nome:"Alpha Parque", taxa:6.00, gratis:false},
+    {nome:"Alphaville", taxa:8.00, gratis:false},
+    {nome:"Balneário Arco-Íris", taxa:10.00, gratis:false},
+    {nome:"Centro", taxa:5.00, gratis:true},
+    {nome:"Chácaras Brizon", taxa:9.00, gratis:false},
+    {nome:"Conjunto Halley", taxa:7.00, gratis:false},
+    {nome:"Eldorado", taxa:6.00, gratis:false},
+    {nome:"Floresta", taxa:6.00, gratis:false},
+    {nome:"Habitar Brasil", taxa:7.00, gratis:false},
+    {nome:"Habitar Brasil II", taxa:7.00, gratis:false},
+    {nome:"Incra", taxa:8.00, gratis:false},
+    {nome:"Industrial", taxa:6.00, gratis:false},
+    {nome:"Jardim Bandeirantes", taxa:6.00, gratis:false},
+    {nome:"Jardim Clodoaldo", taxa:6.00, gratis:false},
+    {nome:"Jardim Itália I", taxa:7.00, gratis:false},
+    {nome:"Jardim Itália II", taxa:7.00, gratis:false},
+    {nome:"Jardim Limoeiro", taxa:8.00, gratis:false},
+    {nome:"Jardim São Pedro I", taxa:7.00, gratis:false},
+    {nome:"Jardim São Pedro II", taxa:7.00, gratis:false},
+    {nome:"Jardim Saúde", taxa:6.00, gratis:false},
+    {nome:"Josino Brito", taxa:6.00, gratis:false},
+    {nome:"Liberdade", taxa:6.00, gratis:false},
+    {nome:"Morada do Bosque", taxa:8.00, gratis:false},
+    {nome:"Morada do Sol", taxa:8.00, gratis:false},
+    {nome:"Nova Esperança", taxa:7.00, gratis:false},
+    {nome:"Novo Cacoal", taxa:6.00, gratis:false},
+    {nome:"Novo Horizonte", taxa:7.00, gratis:false},
+    {nome:"Parque Fortaleza", taxa:8.00, gratis:false},
+    {nome:"Princesa Isabel", taxa:6.00, gratis:false},
+    {nome:"Residencial Parque Alvorada", taxa:7.00, gratis:false},
+    {nome:"Residencial Parque Brizon", taxa:7.00, gratis:false},
+    {nome:"Santo Antônio", taxa:6.00, gratis:false},
+    {nome:"Sete de Setembro", taxa:8.00, gratis:false},
+    {nome:"Sociedade Bela Vista", taxa:8.00, gratis:false},
+    {nome:"Teixeirão", taxa:7.00, gratis:false},
+    {nome:"Village do Sol", taxa:7.00, gratis:false},
+    {nome:"Village do Sol II", taxa:8.00, gratis:false},
+    {nome:"Vista Alegre", taxa:7.00, gratis:false},
+    {nome:"Outro bairro", taxa:8.00, gratis:false}
+  ],
+  formasPagamento: ["Pix", "Dinheiro", "Cartão (na entrega)"]
+};
+
+/* ---------- Abas ---------- */
+document.querySelectorAll('.aba').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.aba').forEach(function(b) { b.classList.remove('ativa'); });
+    document.querySelectorAll('.conteudo-aba').forEach(function(c) { c.classList.remove('ativo'); });
+    btn.classList.add('ativa');
+    document.getElementById('aba-' + btn.dataset.aba).classList.add('ativo');
+  });
+});
+
+/* ---------- Render ---------- */
+function render() {
+  renderCombos(); renderMolhos(); renderBebidas(); renderAdicionais(); renderBairros(); renderConfig();
+}
+
+function cardCombo(c, i) {
+  return '<div class="card-ed" data-tipo="combo" data-i="' + i + '">' +
+    '<div class="campo-full"><label class="mini">Nome</label><input type="text" class="f-nome" value="' + esc(c.nome) + '"></div>' +
+    '<div class="campo-full"><label class="mini">Descrição</label><input type="text" class="f-desc" value="' + esc(c.descricao || '') + '"></div>' +
+    '<div class="grid-2">' +
+      '<div><label class="mini">Preço (R$)</label><input type="number" class="f-preco" step="0.01" min="0" value="' + (c.preco || '') + '"></div>' +
+      '<div><label class="mini">Preço "De" — riscado (opcional)</label><input type="number" class="f-preco-orig" step="0.01" min="0" value="' + (c.precoOriginal || '') + '"></div>' +
+    '</div>' +
+    '<div class="card-ed-rodape">' +
+      '<div class="toggle-wrap">' +
+        '<label class="switch"><input type="checkbox" class="f-disp"' + (c.disponivel !== false ? ' checked' : '') + '><span class="slider"></span></label>' +
+        '<span class="toggle-label">Disponível</span>' +
+      '</div>' +
+      '<button class="btn-rem" data-tipo="combo" data-i="' + i + '">Remover</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function cardSimples(item, i, tipo, temPreco) {
+  return '<div class="card-ed" data-tipo="' + tipo + '" data-i="' + i + '">' +
+    '<div class="' + (temPreco ? 'grid-2' : 'campo-full') + '">' +
+      '<div><label class="mini">Nome</label><input type="text" class="f-nome" value="' + esc(item.nome || '') + '"></div>' +
+      (temPreco ? '<div><label class="mini">Preço (R$)</label><input type="number" class="f-preco" step="0.01" min="0" value="' + (item.preco || '') + '"></div>' : '') +
+    '</div>' +
+    (tipo === 'adicional' ? '<div class="campo-full" style="margin-top:8px;"><label class="mini">Descrição</label><input type="text" class="f-desc" value="' + esc(item.descricao || '') + '"></div>' : '') +
+    '<div class="card-ed-rodape">' +
+      '<div class="toggle-wrap">' +
+        '<label class="switch"><input type="checkbox" class="f-disp"' + (item.disponivel !== false ? ' checked' : '') + '><span class="slider"></span></label>' +
+        '<span class="toggle-label">Disponível</span>' +
+      '</div>' +
+      '<button class="btn-rem" data-tipo="' + tipo + '" data-i="' + i + '">Remover</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function renderCombos() {
+  document.getElementById('listaCombos').innerHTML = dados.combos.map(cardCombo).join('');
+  vincularRem();
+}
+function renderMolhos() {
+  document.getElementById('listaMolhos').innerHTML = dados.molhos.map(function(m,i){ return cardSimples(m,i,'molho',false); }).join('');
+  vincularRem();
+}
+function renderBebidas() {
+  document.getElementById('listaBebidas').innerHTML = dados.bebidas.map(function(b,i){ return cardSimples(b,i,'bebida',true); }).join('');
+  vincularRem();
+}
+function renderAdicionais() {
+  document.getElementById('listaAdicionais').innerHTML = dados.adicionais.map(function(a,i){ return cardSimples(a,i,'adicional',true); }).join('');
+  vincularRem();
+}
+
+function renderBairros() {
+  var html = '';
+  for (var i = 0; i < dados.bairros.length; i++) {
+    var b = dados.bairros[i];
+    html += '<div class="bairro-item" data-i="' + i + '">' +
+      '<span class="bairro-nome">' + esc(b.nome) + '</span>' +
+      '<div class="bairro-preco-wrap">' +
+        '<span>R$</span>' +
+        '<input type="number" class="b-taxa" step="0.50" min="0" value="' + (b.taxa || 0) + '"' + (b.gratis ? ' disabled' : '') + '>' +
+      '</div>' +
+      '<button class="gratis-btn' + (b.gratis ? ' ativo' : '') + '" data-i="' + i + '">' + (b.gratis ? '✓ Grátis' : 'Grátis?') + '</button>' +
+      '<button class="btn-rem" data-tipo="bairro" data-i="' + i + '">✕</button>' +
+    '</div>';
+  }
+  document.getElementById('listaBairros').innerHTML = html;
+
+  // Toggle grátis
+  document.getElementById('listaBairros').querySelectorAll('.gratis-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var i = +btn.dataset.i;
+      dados.bairros[i].gratis = !dados.bairros[i].gratis;
+      renderBairros();
+    });
+  });
+
+  // Input taxa
+  document.getElementById('listaBairros').querySelectorAll('.b-taxa').forEach(function(input) {
+    var i = +input.closest('.bairro-item').dataset.i;
+    input.addEventListener('change', function() {
+      dados.bairros[i].taxa = parseFloat(input.value) || 0;
+    });
+  });
+
+  vincularRem();
+}
+
+function renderConfig() {
+  document.getElementById('listaFormas').innerHTML = (dados.formasPagamento || []).map(function(f, i) {
+    return '<div class="forma-item"><span>' + esc(f) + '</span><button class="btn-rem-forma" data-i="' + i + '">✕</button></div>';
+  }).join('');
+  document.querySelectorAll('.btn-rem-forma').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      dados.formasPagamento.splice(+btn.dataset.i, 1);
+      renderConfig();
+    });
+  });
+}
+
+function vincularRem() {
+  document.querySelectorAll('.btn-rem[data-tipo]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var tipo = btn.dataset.tipo, i = +btn.dataset.i;
+      if (tipo === 'combo') dados.combos.splice(i, 1);
+      else if (tipo === 'molho') dados.molhos.splice(i, 1);
+      else if (tipo === 'bebida') dados.bebidas.splice(i, 1);
+      else if (tipo === 'adicional') dados.adicionais.splice(i, 1);
+      else if (tipo === 'bairro') dados.bairros.splice(i, 1);
+      render();
+    });
+  });
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+/* ---------- Botões adicionar ---------- */
+document.getElementById('btnAddCombo').addEventListener('click', function() {
+  dados.combos.push({nome:'Novo combo', descricao:'', preco:0, precoOriginal:null, disponivel:true});
+  renderCombos();
+});
+document.getElementById('btnAddMolho').addEventListener('click', function() {
+  dados.molhos.push({nome:'Novo molho', disponivel:true}); renderMolhos();
+});
+document.getElementById('btnAddBebida').addEventListener('click', function() {
+  dados.bebidas.push({nome:'Nova bebida', preco:0, disponivel:true}); renderBebidas();
+});
+document.getElementById('btnAddAdicional').addEventListener('click', function() {
+  dados.adicionais.push({nome:'Novo adicional', descricao:'', preco:0, disponivel:true}); renderAdicionais();
+});
+document.getElementById('btnAddBairro').addEventListener('click', function() {
+  var nome = document.getElementById('novoBairroNome').value.trim();
+  if (!nome) return;
+  dados.bairros.push({nome:nome, taxa:6.00, gratis:false});
+  document.getElementById('novoBairroNome').value = '';
+  renderBairros();
+});
+document.getElementById('btnAddForma').addEventListener('click', function() {
+  var v = document.getElementById('novaForma').value.trim();
+  if (!v) return;
+  if (!dados.formasPagamento) dados.formasPagamento = [];
+  dados.formasPagamento.push(v);
+  document.getElementById('novaForma').value = '';
+  renderConfig();
+});
+
+/* ---------- Coletar dados do DOM ---------- */
+function coletar() {
+  dados.combos = Array.from(document.querySelectorAll('[data-tipo="combo"]')).map(function(el) {
+    return {
+      nome: el.querySelector('.f-nome').value.trim(),
+      descricao: el.querySelector('.f-desc').value.trim(),
+      preco: parseFloat(el.querySelector('.f-preco').value) || 0,
+      precoOriginal: parseFloat(el.querySelector('.f-preco-orig').value) || null,
+      disponivel: el.querySelector('.f-disp').checked
+    };
+  });
+  dados.molhos = Array.from(document.querySelectorAll('[data-tipo="molho"]')).map(function(el) {
+    return { nome: el.querySelector('.f-nome').value.trim(), disponivel: el.querySelector('.f-disp').checked };
+  });
+  dados.bebidas = Array.from(document.querySelectorAll('[data-tipo="bebida"]')).map(function(el) {
+    return { nome: el.querySelector('.f-nome').value.trim(), preco: parseFloat(el.querySelector('.f-preco').value)||0, disponivel: el.querySelector('.f-disp').checked };
+  });
+  dados.adicionais = Array.from(document.querySelectorAll('[data-tipo="adicional"]')).map(function(el) {
+    return { nome: el.querySelector('.f-nome').value.trim(), descricao: el.querySelector('.f-desc') ? el.querySelector('.f-desc').value.trim() : '', preco: parseFloat(el.querySelector('.f-preco').value)||0, disponivel: el.querySelector('.f-disp').checked };
+  });
+  // Bairros: lê diretamente do DOM para garantir
+  var bairroEls = document.querySelectorAll('.bairro-item[data-i]');
+  if(bairroEls.length > 0){
+    var novosB = [];
+    bairroEls.forEach(function(el){
+      var i = +el.dataset.i;
+      var b = dados.bairros[i];
+      if(!b) return;
+      var inputTaxa = el.querySelector('.b-taxa');
+      novosB.push({
+        nome: b.nome,
+        taxa: inputTaxa ? (parseFloat(inputTaxa.value)||0) : b.taxa,
+        gratis: b.gratis
+      });
+    });
+    dados.bairros = novosB;
+  }
+}
+
+/* ---------- Salvar ---------- */
+document.getElementById('btnSalvar').addEventListener('click', async function() {
+  coletar();
+  try {
+    await db.collection('config').doc('cardapio').set(dados);
+    toast('✓ Salvo! Mudanças já aparecem para os clientes.');
+  } catch(e) {
+    alert('Erro ao salvar: ' + e.message);
+  }
+});
+
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('mostrar');
+  setTimeout(function() { el.classList.remove('mostrar'); }, 3000);
+}
+
+/* ---------- Carregar ---------- */
+async function carregar() {
+  try {
+    var snap = await db.collection('config').doc('cardapio').get();
+    if (snap.exists) {
+      var d = snap.data();
+      // Garante que bairros existam mesmo em dados antigos
+      if (!d.bairros) d.bairros = dados.bairros;
+      dados = d;
+    }
+  } catch(e) { console.warn('usando padrão', e); }
+  render();
+}
+carregar();
+</script>
+</body>
+</html>
