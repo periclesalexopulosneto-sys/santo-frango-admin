@@ -408,24 +408,32 @@ document.getElementById('btnAddForma').addEventListener('click', function() {
 
 /* ---------- Coletar dados do DOM ---------- */
 function coletar() {
-  dados.combos = Array.from(document.querySelectorAll('[data-tipo="combo"]')).map(function(el) {
+  dados.combos = Array.from(document.querySelectorAll('.card-ed[data-tipo="combo"]')).map(function(el) {
+    var elNome = el.querySelector('.f-nome');
+    var elDesc = el.querySelector('.f-desc');
+    var elPreco = el.querySelector('.f-preco');
+    var elPrecoOrig = el.querySelector('.f-preco-orig');
+    var elDisp = el.querySelector('.f-disp');
     return {
-      nome: el.querySelector('.f-nome').value.trim(),
-      descricao: el.querySelector('.f-desc').value.trim(),
-      preco: parseFloat(el.querySelector('.f-preco').value) || 0,
-      precoOriginal: parseFloat(el.querySelector('.f-preco-orig').value) || null,
-      disponivel: el.querySelector('.f-disp').checked
+      nome: elNome ? elNome.value.trim() : '',
+      descricao: elDesc ? elDesc.value.trim() : '',
+      preco: elPreco ? (parseFloat(elPreco.value) || 0) : 0,
+      precoOriginal: elPrecoOrig ? (parseFloat(elPrecoOrig.value) || null) : null,
+      disponivel: elDisp ? elDisp.checked : true
     };
-  });
-  dados.molhos = Array.from(document.querySelectorAll('[data-tipo="molho"]')).map(function(el) {
-    return { nome: el.querySelector('.f-nome').value.trim(), disponivel: el.querySelector('.f-disp').checked };
-  });
-  dados.bebidas = Array.from(document.querySelectorAll('[data-tipo="bebida"]')).map(function(el) {
-    return { nome: el.querySelector('.f-nome').value.trim(), preco: parseFloat(el.querySelector('.f-preco').value)||0, disponivel: el.querySelector('.f-disp').checked };
-  });
-  dados.adicionais = Array.from(document.querySelectorAll('[data-tipo="adicional"]')).map(function(el) {
-    return { nome: el.querySelector('.f-nome').value.trim(), descricao: el.querySelector('.f-desc') ? el.querySelector('.f-desc').value.trim() : '', preco: parseFloat(el.querySelector('.f-preco').value)||0, disponivel: el.querySelector('.f-disp').checked };
-  });
+  }).filter(function(c){ return c.nome !== ''; });
+  dados.molhos = Array.from(document.querySelectorAll('.card-ed[data-tipo="molho"]')).map(function(el) {
+    var n=el.querySelector('.f-nome'), d=el.querySelector('.f-disp');
+    return { nome: n?n.value.trim():'', disponivel: d?d.checked:true };
+  }).filter(function(m){ return m.nome !== ''; });
+  dados.bebidas = Array.from(document.querySelectorAll('.card-ed[data-tipo="bebida"]')).map(function(el) {
+    var n=el.querySelector('.f-nome'), p=el.querySelector('.f-preco'), d=el.querySelector('.f-disp');
+    return { nome: n?n.value.trim():'', preco: p?(parseFloat(p.value)||0):0, disponivel: d?d.checked:true };
+  }).filter(function(b){ return b.nome !== ''; });
+  dados.adicionais = Array.from(document.querySelectorAll('.card-ed[data-tipo="adicional"]')).map(function(el) {
+    var n=el.querySelector('.f-nome'), ds=el.querySelector('.f-desc'), p=el.querySelector('.f-preco'), d=el.querySelector('.f-disp');
+    return { nome: n?n.value.trim():'', descricao: ds?ds.value.trim():'', preco: p?(parseFloat(p.value)||0):0, disponivel: d?d.checked:true };
+  }).filter(function(a){ return a.nome !== ''; });
   // Bairros: lê diretamente do DOM para garantir
   var bairroEls = document.querySelectorAll('.bairro-item[data-i]');
   if(bairroEls.length > 0){
